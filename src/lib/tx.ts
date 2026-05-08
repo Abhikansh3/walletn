@@ -1,4 +1,4 @@
-import { encodeFunctionData, parseAbi, type Address, type Hex } from 'viem'
+import { encodeFunctionData, type Address, type Hex } from 'viem'
 import type { CallItem, GasFees, PermitData, TypedDataDomain } from '@/types'
 
 // --- EIP-1559 transaction builder ---
@@ -69,9 +69,34 @@ export function buildPermitTypedData(
 
 // --- Multicall batch builder ---
 
-const MULTICALL_ABI = parseAbi([
-  'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
-])
+const MULTICALL_ABI = [
+  {
+    name: 'aggregate3',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [
+      {
+        name: 'calls',
+        type: 'tuple[]',
+        components: [
+          { name: 'target', type: 'address' },
+          { name: 'allowFailure', type: 'bool' },
+          { name: 'callData', type: 'bytes' },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        name: 'returnData',
+        type: 'tuple[]',
+        components: [
+          { name: 'success', type: 'bool' },
+          { name: 'returnData', type: 'bytes' },
+        ],
+      },
+    ],
+  },
+] as const
 
 // Standard multicall3 address (deployed on all major chains)
 export const MULTICALL3_ADDRESS: Address = '0xcA11bde05977b3631167028862bE2a173976CA11'

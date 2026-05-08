@@ -1,14 +1,33 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { http, fallback, cookieStorage, createStorage } from 'wagmi'
+import { connectorsForWallets } from '@rainbow-me/rainbowkit'
+import { metaMaskWallet } from '@rainbow-me/rainbowkit/wallets'
+import { coinbaseWallet } from '@rainbow-me/rainbowkit/wallets'
+import { walletConnectWallet } from '@rainbow-me/rainbowkit/wallets'
+import { rainbowWallet } from '@rainbow-me/rainbowkit/wallets'
+import { createConfig, http, fallback, cookieStorage, createStorage } from 'wagmi'
 import { mainnet, arbitrum, polygon, bsc, optimism, base } from 'viem/chains'
 
-// Get your own projectId from https://cloud.walletconnect.com
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? 'YOUR_PROJECT_ID'
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? ''
 
-export const wagmiConfig = getDefaultConfig({
-  appName: 'SwapRail',
-  appDescription: 'Multi-chain wallet hub for SwapRail',
-  projectId,
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [metaMaskWallet, coinbaseWallet, rainbowWallet],
+    },
+    {
+      groupName: 'Other',
+      wallets: [walletConnectWallet],
+    },
+  ],
+  {
+    projectId,
+    appName: 'SwapRail',
+    appDescription: 'Multi-chain wallet hub for SwapRail',
+  },
+)
+
+export const wagmiConfig = createConfig({
+  connectors,
   chains: [mainnet, arbitrum, polygon, bsc, optimism, base],
   transports: {
     [mainnet.id]: fallback([
