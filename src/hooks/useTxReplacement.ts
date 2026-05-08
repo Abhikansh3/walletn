@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { useSendTransaction, usePublicClient, useChainId, useConnection } from 'wagmi'
+import { useSendTransaction, usePublicClient, useChainId, useAccount } from 'wagmi'
 import type { Address, Hash } from 'viem'
 import { getReplacementGas } from '@/lib/gas'
 import type { GasFees, TxReplacement } from '@/types'
@@ -13,7 +13,7 @@ interface ReplacementState {
 }
 
 export function useTxReplacement() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const chainId = useChainId()
   const publicClient = usePublicClient()
   const { sendTransactionAsync } = useSendTransaction()

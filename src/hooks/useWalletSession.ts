@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useCallback } from 'react'
-import { useConnection, useDisconnect, useReconnect, useChainId, useSwitchChain } from 'wagmi'
+import { useAccount, useDisconnect, useReconnect, useChainId, useSwitchChain } from 'wagmi'
 import type { Address } from 'viem'
 
 const SESSION_KEY = 'swaprail:session'
@@ -34,7 +34,7 @@ function clearSession() {
 }
 
 export function useWalletSession() {
-  const { address, connector, status } = useConnection()
+  const { address, connector, status } = useAccount()
   const chainId = useChainId()
   const { disconnect } = useDisconnect()
   const { reconnect } = useReconnect()

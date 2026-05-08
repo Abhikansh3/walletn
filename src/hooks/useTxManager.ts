@@ -6,7 +6,7 @@ import {
   useWaitForTransactionReceipt,
   usePublicClient,
   useChainId,
-  useConnection,
+  useAccount,
 } from 'wagmi'
 import type { Address, Hash, Hex } from 'viem'
 import { estimateGasLimit } from '@/lib/gas'
@@ -24,7 +24,7 @@ interface SendParams {
 }
 
 export function useTxManager() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const chainId = useChainId()
   const publicClient = usePublicClient()
   const { getNextNonce, trackPending, confirmPending } = useNonceManager()

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { useSignTypedData, usePublicClient, useConnection } from 'wagmi'
+import { useSignTypedData, usePublicClient, useAccount } from 'wagmi'
 import { parseAbi } from 'viem'
 import type { Address } from 'viem'
 import { buildPermitTypedData } from '@/lib/tx'
@@ -21,7 +21,7 @@ interface PermitState {
 }
 
 export function usePermit() {
-  const { address } = useConnection()
+  const { address } = useAccount()
   const publicClient = usePublicClient()
   const { signTypedDataAsync } = useSignTypedData()
 

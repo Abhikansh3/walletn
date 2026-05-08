@@ -2,10 +2,10 @@
 
 import { WalletButton } from '@/components/wallet/WalletButton'
 import { NetworkSelector } from '@/components/wallet/NetworkSelector'
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 
 export function Header() {
-  const { status } = useConnection()
+  const { status } = useAccount()
   const isConnected = status === 'connected'
 
   return (

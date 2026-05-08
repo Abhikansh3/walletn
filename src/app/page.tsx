@@ -1,6 +1,6 @@
 'use client'
 
-import { useConnection } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { AccountInfo } from '@/components/wallet/AccountInfo'
 import { TransactionPanel } from '@/components/transaction/TransactionPanel'
 import { TxHistory } from '@/components/transaction/TxHistory'
@@ -93,7 +93,7 @@ function LandingHero() {
 }
 
 export default function Home() {
-  const { status } = useConnection()
+  const { status } = useAccount()
 
   if (status === 'connected') {
     return <ConnectedDashboard />

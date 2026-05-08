@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import { useTransactionCount, usePublicClient, useChainId } from 'wagmi'
-import { useConnection } from 'wagmi'
+import { useTransactionCount, usePublicClient, useAccount } from 'wagmi'
 import type { Address, Hash } from 'viem'
 
 interface PendingTx {
@@ -12,10 +11,10 @@ interface PendingTx {
 }
 
 export function useNonceManager() {
-  const { address } = useConnection()
-  const chainId = useChainId()
+  const { address } = useAccount()
   const publicClient = usePublicClient()
   const pendingRef = useRef<PendingTx[]>([])
+  const [pendingTxs, setPendingTxs] = useState<PendingTx[]>([])
   const [localNonce, setLocalNonce] = useState<number | null>(null)
 
   const { data: onchainNonce, refetch: refetchNonce } = useTransactionCount({
@@ -23,9 +22,7 @@ export function useNonceManager() {
     query: { enabled: !!address },
   })
 
-  // Returns the next nonce to use, accounting for locally queued txs
   const getNextNonce = useCallback(async (): Promise<number> => {
-    // Prefer pending nonce from RPC
     let baseNonce: number
     if (publicClient && address) {
       try {
@@ -41,7 +38,6 @@ export function useNonceManager() {
       baseNonce = onchainNonce ?? 0
     }
 
-    // Find any locally tracked nonces above the rpc pending nonce
     const localMax = pendingRef.current.reduce(
       (max, tx) => Math.max(max, tx.nonce + 1),
       baseNonce,
@@ -53,32 +49,35 @@ export function useNonceManager() {
   }, [publicClient, address, onchainNonce])
 
   const trackPending = useCallback((nonce: number, hash: Hash) => {
-    pendingRef.current = [
+    const updated = [
       ...pendingRef.current.filter((t) => t.nonce !== nonce),
       { nonce, hash, submittedAt: Date.now() },
     ]
+    pendingRef.current = updated
+    setPendingTxs(updated)
   }, [])
 
   const confirmPending = useCallback(
     (hash: Hash) => {
-      pendingRef.current = pendingRef.current.filter((t) => t.hash !== hash)
+      const updated = pendingRef.current.filter((t) => t.hash !== hash)
+      pendingRef.current = updated
+      setPendingTxs(updated)
       refetchNonce()
     },
     [refetchNonce],
   )
 
-  const clearStale = useCallback(
-    (maxAgeMs = 300_000) => {
-      const cutoff = Date.now() - maxAgeMs
-      pendingRef.current = pendingRef.current.filter((t) => t.submittedAt > cutoff)
-    },
-    [],
-  )
+  const clearStale = useCallback((maxAgeMs = 300_000) => {
+    const cutoff = Date.now() - maxAgeMs
+    const updated = pendingRef.current.filter((t) => t.submittedAt > cutoff)
+    pendingRef.current = updated
+    setPendingTxs(updated)
+  }, [])
 
   return {
     onchainNonce,
     localNonce,
-    pendingTxs: pendingRef.current,
+    pendingTxs,
     getNextNonce,
     trackPending,
     confirmPending,

@@ -1,12 +1,12 @@
 'use client'
 
-import { useConnection, useBalance, useEnsName, useEnsAvatar } from 'wagmi'
+import { useAccount, useBalance, useEnsName, useEnsAvatar } from 'wagmi'
 import type { Address } from 'viem'
 import { formatUnits } from 'viem'
 import { shortenAddress } from '@/lib/tx'
 
 export function AccountInfo() {
-  const { address, status, connector } = useConnection()
+  const { address, status, connector } = useAccount()
 
   const { data: balance } = useBalance({
     address: address as Address | undefined,
